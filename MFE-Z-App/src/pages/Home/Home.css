@@ -1,0 +1,66 @@
+/*
+* A manual example of scoped CSS using a data attribute 
+* attached once to a parent container
+* @todo: generate prefix from utils via Sass or CSS Modules
+*/
+@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap');
+
+[data-app-prefix='132pqds-05c'].app {
+  background-color: #333;
+  color: #777;
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-content: center;
+}
+
+[data-app-prefix='132pqds-05c'] .text {
+
+  font-family: "Jaro", sans-serif;
+  transform-style: preserve-3d;
+  rotate: 1 -1 -.3 45deg;
+  text-align: center;
+  font-size: clamp(2rem, 14vw + 1rem, 20rem);
+  font-variation-settings: "opsz" 6;
+  animation: ops 2s infinite linear alternate;
+  position: relative;
+  z-index: 2;
+  &:before {
+    position: absolute;
+    content: '';
+    width: 100%;
+    height: .05em;
+    top: 100%;
+    background-color: #1f202050;
+    border-radius: 50%;
+    filter: blur(.05em);
+    animation: bops 2s infinite linear alternate;
+  }
+}
+
+[data-app-prefix='132pqds-05c'] .manifest {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  color: #111;
+  width: 50%;
+  height: 50%;
+  position: absolute;
+  z-index: 1;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+}
+
+@keyframes ops {
+  to {
+    font-variation-settings: "opsz" 72;
+  }
+}
+
+@keyframes bops {
+  to {
+    scale: 1 2;
+  }
+}

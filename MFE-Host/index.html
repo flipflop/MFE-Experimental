@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Micro Frontend Host - Using SystemJS</title>
+  </head>
+  <body>
+
+    <script src='./system.min.js'></script>
+    <script src='./js/pubsub/pubsub.js'></script>
+    <script src='./js/loadStyleSheet/loadStyleSheet.js'></script>
+    <!-- <script src='https://unpkg.com/systemjs@4.1.0/dist/system.js'></script> -->
+    <!-- <script src='./js/single-spa/umd/single-spa.min.js'></script> -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- <script src='./js/single-spa-react/umd/single-spa-react.js'></script> -->
+
+    <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/single-spa/6.0.1/es5/system/single-spa.min.js'></script> -->
+    <script src='https://unpkg.com/systemjs@4.1.0/dist/extras/amd.js'></script>
+    <script src='https://unpkg.com/systemjs@4.1.0/dist/extras/named-exports.js'></script>
+    <script src='https://unpkg.com/systemjs@4.1.0/dist/extras/use-default.js'></script>
+
+    <!-- Load the common deps-->
+    <!-- <script src="./common-deps.js"></script> -->
+    <!-- <script src='./single-spa-react.min.js'></script> -->
+
+    <!-- Static navbar -->
+    <link rel="stylesheet" href="/styles.css">
+    <div id='navbar'>
+    </div>
+    <div id="root">
+
+    </div>
+
+        <!-- Load the application -->
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/single-spa/6.0.1/es2015/esm/single-spa.min.js" integrity="sha512-D12FpyXpwFZm+Q1+sDfTpmLOsw1rdzEkdx6uJH7iqTuIQJWI7oLAoOIlUdHV+58vqRLE4YV2N+mA0b+jHhtDlA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/single-spa/6.0.1/es5/esm/single-spa.min.js" integrity="sha512-1KhWSUdnpV3dFkqw1A9skG10bgm9UeUjE29v6IRMzhqmJdGu+mx+X4MSGpWF/2KaQJqHLTIlDlpRcmUspYYQ3A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+        <script type="module">
+          //import singleSpaReact from './single-spa-react.js'
+          //import singleSpaReact from 'https://cdn.jsdelivr.net/npm/single-spa-react@6.0.1/+esm'
+          //import * as React from 'https://unpkg.com/react@18/umd/react.production.min.js'
+          //import * as ReactDom from 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'
+        </script>
+
+        <script type="module">
+          let SystemJS = System;
+          import MICRO_FRONTEND_MANIFEST from './micro-frontend-manifest.js';
+          //import * as React from 'https://unpkg.com/react@18/umd/react.production.min.js'
+          //import * as ReactDom from 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'
+          //import * as isActive from './activityFns.js'
+          //import * as singleSpa from './js/single-spa/umd/single-spa.min.js'
+          //import singleSpaReact from 'https://cdn.jsdelivr.net/npm/single-spa-react@6.0.1/+esm'
+    
+          //singleSpa.registerApplication('app1', () => SystemJS.import('@portal/app1'), isActive.navbar)
+    
+          //registerApplication(appName, applicationOrLoadingFn, activityFn, customProps = {})
+        
+          console.log("MICRO_FRONTEND_MANIFEST", MICRO_FRONTEND_MANIFEST);
+          //SystemJS.import('/bundle.js')
+    
+          const JSModule = SystemJS.import(MICRO_FRONTEND_MANIFEST.entry_script)
+              .then(function(module){
+                // Stub the loading of multiple MFE manifest files from
+                // a centralised application registry service
+                // individual teams submit a PR to a repo which
+                // updates this service after executing automated
+                // integration and cross browser tests (e.g. BrowserStack)
+                PubSub.publish('module_loaded', {
+                  "id": "organisation-team1-app1",
+                  "app_prefix": "132pqds-05c",
+                  "name": "Retail App",
+                  "description": "Claims App",
+                  "version": "0.0.1",
+                  "team": "Team 1",
+                  "entry_script": "/bundles/Z-App-132pqds-05c/static/js/mfe.js",
+                  "image_path": "/bundles/Z-App-132pqds-05c/static/images/",
+                  "css_path": "/bundles/Z-App-132pqds-05c/static/css/mfe.css",
+                  "entry_iframe": "/iframe.html",
+                  "email_contacts": "roz.chivers@email.com.au",
+                  "environment": "development",
+                  "rootRenderNode": "root", 
+                  "ssri": "@todo",
+                  "resource": "@todo",
+                  "region": "@todo"
+                });
+                return module;
+              })
+
+            loadStyleSheet(MICRO_FRONTEND_MANIFEST.css_path, function( success, link ) {
+              if ( success ) {
+                 // code to execute if the style sheet was loaded successfully
+                 console.log("CSS loaded");
+              }
+              else {
+                 // code to execute if the style sheet failed to successfully
+                 console.log("CSS failed to load");
+              }
+           } );
+
+        </script>
+  </body>
+</html>
