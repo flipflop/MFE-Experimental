@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { Link } from "react-router-dom";
 import PageContext from '../../components/PageContext/PageContext';
-import './Home.css';
 
 function Home() {
 
@@ -9,14 +8,13 @@ function Home() {
     let appPrefix = usePageContext.app_prefix;
 
     let linkStyle = {
-        color: 'white'
+        color: 'black'
     };
 
     // Note: use the app id from your Portlet Manifest 'macro-portal--team-name-app-name'
 
     return (
-        <>
-        <section data-app-prefix={usePageContext.app_prefix} className="app">
+        <section className="home-page" data-app-prefix={usePageContext.app_prefix}>
             <h1 className="text">Z-APP</h1>
             <p className="manifest">
                 id: {usePageContext.id} <br/>
@@ -36,41 +34,17 @@ function Home() {
                 resource: {usePageContext.resource} <br/>
                 region: {usePageContext.region} <br/>
             </p>
+            <div>
+                <ul>
+                    <li>
+                        <Link to={'/'} style={linkStyle}>Home</Link>
+                    </li>
+                    <li>
+                        <Link to={appPrefix +'/no-route'} style={linkStyle}>Not Found</Link>
+                    </li>
+                </ul>
+            </div>
         </section>
-        <div style={{
-            textAlign: 'center',
-            position: 'absolute',
-            zIndex: 4,
-            top: 80,
-            left: 80
-        }}>
-            <ul style={{
-                textAlign: 'left'
-            }}>
-                <li>
-                    <Link to={'/'} style={linkStyle}>Home</Link>
-                </li>
-                <li>
-                    <Link to={appPrefix + '/datatable'} style={linkStyle}>Datatable</Link>
-                </li>
-                <li>
-                    <Link to={appPrefix + '/forms'} style={linkStyle}>Forms</Link>
-                </li>
-                <li>
-                    <Link to={appPrefix +'/todo'} style={linkStyle}>Todo App</Link>
-                </li>
-                <li>
-                    <Link to={appPrefix +'/settings'} style={linkStyle}>Settings</Link>
-                </li>
-                <li>
-                    <Link to={appPrefix +'/stepper'} style={linkStyle}>Stepper</Link>
-                </li>
-                <li>
-                    <Link to={appPrefix +'/no-route'} style={linkStyle}>Not Found</Link>
-                </li>
-            </ul>
-        </div>
-        </>
     );
 }
 

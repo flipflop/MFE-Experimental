@@ -11,7 +11,7 @@ const MICRO_FRONTEND_MANIFEST = {
   "entry_iframe": "/iframe.html",
   "email_contacts": "roz.chivers@email.com.au",
   "environment": "development",
-  "rootRenderNode": "root", 
+  "rootRenderNode": "root1", 
   "ssri": "@todo",
   "resource": "@todo",
   "region": "@todo"

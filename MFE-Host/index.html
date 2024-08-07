@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width" />
     <title>Micro Frontend Host - Using SystemJS</title>
   </head>
-  <body>
-
-    <script src='./system.min.js'></script>
-    <script src='./js/pubsub/pubsub.js'></script>
-    <script src='./js/loadStyleSheet/loadStyleSheet.js'></script>
+  <body data-host-prefix="micro-frontend-host">
+    <div id="toast-area"></div>
+    <!-- Begin Fix FOUC in Fire fox -->
+    <script>0</script>
+    <!-- EndFix FOUC in Fire fox -->
+    <script src="./system.min.js"></script>
+    <script src="./js/pubsub/pubsub.js"></script>
+    <script src="./js/registerAndLoad/registerAndLoad.js"></script>
+    <script src="./js/loadStyleSheet/loadStyleSheet.js"></script>
     <!-- <script src='https://unpkg.com/systemjs@4.1.0/dist/system.js'></script> -->
     <!-- <script src='./js/single-spa/umd/single-spa.min.js'></script> -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -17,76 +21,249 @@
     <!-- <script src='./js/single-spa-react/umd/single-spa-react.js'></script> -->
 
     <!-- <script src='https://cdnjs.cloudflare.com/ajax/libs/single-spa/6.0.1/es5/system/single-spa.min.js'></script> -->
-    <script src='https://unpkg.com/systemjs@4.1.0/dist/extras/amd.js'></script>
-    <script src='https://unpkg.com/systemjs@4.1.0/dist/extras/named-exports.js'></script>
-    <script src='https://unpkg.com/systemjs@4.1.0/dist/extras/use-default.js'></script>
+    <script src="https://unpkg.com/systemjs@4.1.0/dist/extras/amd.js"></script>
+    <script src="https://unpkg.com/systemjs@4.1.0/dist/extras/named-exports.js"></script>
+    <script src="https://unpkg.com/systemjs@4.1.0/dist/extras/use-default.js"></script>
 
     <!-- Load the common deps-->
     <!-- <script src="./common-deps.js"></script> -->
     <!-- <script src='./single-spa-react.min.js'></script> -->
 
-    <!-- Static navbar -->
-    <link rel="stylesheet" href="/styles.css">
-    <div id='navbar'>
-    </div>
-    <div id="root">
+    <style>
+
+      /* Debug CSS for style collisions in MFEs */
+      /* Styles should be sandboxed by Shadow DOM */
+      /* Uncomment to use */
+      /*
+        body, div, span, a, ol, ul, li, section, nav, menu, progress, select, 
+        strong, table, form, textarea, label, fieldset, article, video, p, i, 
+        h1, h2, h3, h4, h5, h6, header, footer {
+          border: 1px solid red;
+        }
+      */
+
+      body[data-host-prefix='micro-frontend-host'] {
+        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        margin: 0;
+        background: #333;
+      }
+
+      [data-host-prefix='micro-frontend-host'] h1 {
+        color: #eee;
+        text-align: center;
+      }
+
+      .portal-container {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+      }
+      
+      .portal {
+        position: relative;
+        overflow:auto;
+        background-color: #eee;
+        list-style-type: none;
+        flex-basis: calc(32% - 10px);
+        margin: 8px;
+        border: 3px solid #000;
+        box-sizing: border-box;
+      }
+      
+      .portal::before {
+        content: '';
+        display: block;
+        padding-top: 100%;
+      }
+      
+      .portal .content {
+        position: absolute;
+        top: 0; 
+        left: 0;
+        height: 100%;
+        width: 100%;
+      }
+      
+      .portal iframe {
+        background: #333;
+        margin: 0;
+        padding: 0;
+        position: absolute;
+        top: 0; 
+        left: 0; 
+      }
+
+      .portal.loading::after {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #333;
+        font-weight: bold;
+        color: navy;
+        position: absolute;
+        top: 45%;
+        left: 40%;
+        z-index: 10;
+        content: "Loading... ";
+        padding: 10px;
+        background: #eee;
+        border-radius: 5px;
+      }
+
+      .portal.loading-error::after {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #eee!important;
+        font-weight: bold;
+        color: navy;
+        position: absolute;
+        top: 45%;
+        left: 30%;
+        z-index: 10;
+        text-transform: uppercase;
+        content: "Loading Error... ";
+        padding: 10px;
+        width: 140px;
+        display: inline-block;
+        background: #e22c2c;
+        border: 4px solid #770909;
+        border-radius: 5px;
+      }
+      /* Toast */
+      .toast {
+        opacity: 0;
+        position: fixed;
+        z-index: 100;
+        color: #333;
+        text-transform: capitalize;
+        top: 5px;
+        left: 0;
+        width: 80%;
+        padding: 0 10px 0 0;
+        margin-left: 10px;
+        display: inline;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+      }
+      .success{
+        border-left: 6px solid #47D764;
+        border-right: 6px solid #47D764;
+      }
+      .error{
+          border-left: 3px solid #ff355b;
+          border-right: 3px solid #ff355b;
+      }
+      .info{
+          border-left: 3px solid #2F86EB;
+          border-right: 3px solid #2F86EB;
+      }
+      .warning{
+          border-left: 3px solid #FFC021;
+          border-right: 3px solid #FFC021;
+      }
+      .icon-tick {
+        color: #fff;
+        margin: 10px;
+        background-color: #47D764;
+        border-radius: 5px;
+        padding: 5px;
+      }
+
+      @keyframes fadeInUp {
+        0% {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        50% {
+          transform: translateY(0%);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(0%);
+          opacity: 0;
+        }
+      }
+      
+      .anim-fadeInUp {
+        animation: 3.0s fadeInUp;
+      }
+    </style>
+
+    <h1>Micro Frontend Platform</h1>
+
+    <div id="portlets">
 
     </div>
+    
+    <ul class="portal-container">
 
+      <li class="portal">
+        <iframe id="iframe-root1" src="./login/index.html" width="100%" height="100%" frameBorder="0">
+
+        </iframe>
+      </li>
+
+      <li class="portal">
+        <div id="root2" class="content">
+        </div>
+      </li>
+
+      <li class="portal">
+        <div id="root3" class="content column">
+        </div>
+      </li>
+    
+      <li class="portal">
+        <div id="root4" class="content spread">
+        </div>
+      </li>
+    
+      <li class="portal">
+        <div id="root5" class="content column">
+        </div>
+      </li>
+      
+      <li class="portal">
+        <!-- default render node for unresolved manifests etc. -->
+        <div id="root" class="content column">
+        </div>
+      </li>
+    
+    </ul>
+<!--
+registerAndLoad([
+                'https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.min.js'],    
+-->
         <!-- Load the application -->
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/single-spa/6.0.1/es2015/esm/single-spa.min.js" integrity="sha512-D12FpyXpwFZm+Q1+sDfTpmLOsw1rdzEkdx6uJH7iqTuIQJWI7oLAoOIlUdHV+58vqRLE4YV2N+mA0b+jHhtDlA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
-        <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/single-spa/6.0.1/es5/esm/single-spa.min.js" integrity="sha512-1KhWSUdnpV3dFkqw1A9skG10bgm9UeUjE29v6IRMzhqmJdGu+mx+X4MSGpWF/2KaQJqHLTIlDlpRcmUspYYQ3A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
         <script type="module">
-          //import singleSpaReact from './single-spa-react.js'
-          //import singleSpaReact from 'https://cdn.jsdelivr.net/npm/single-spa-react@6.0.1/+esm'
-          //import * as React from 'https://unpkg.com/react@18/umd/react.production.min.js'
-          //import * as ReactDom from 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'
-        </script>
 
-        <script type="module">
-          let SystemJS = System;
           import MICRO_FRONTEND_MANIFEST from './micro-frontend-manifest.js';
-          //import * as React from 'https://unpkg.com/react@18/umd/react.production.min.js'
-          //import * as ReactDom from 'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'
-          //import * as isActive from './activityFns.js'
-          //import * as singleSpa from './js/single-spa/umd/single-spa.min.js'
-          //import singleSpaReact from 'https://cdn.jsdelivr.net/npm/single-spa-react@6.0.1/+esm'
-    
-          //singleSpa.registerApplication('app1', () => SystemJS.import('@portal/app1'), isActive.navbar)
-    
-          //registerApplication(appName, applicationOrLoadingFn, activityFn, customProps = {})
-        
-          console.log("MICRO_FRONTEND_MANIFEST", MICRO_FRONTEND_MANIFEST);
-          //SystemJS.import('/bundle.js')
-    
-          const JSModule = SystemJS.import(MICRO_FRONTEND_MANIFEST.entry_script)
-              .then(function(module){
-                // Stub the loading of multiple MFE manifest files from
-                // a centralised application registry service
-                // individual teams submit a PR to a repo which
-                // updates this service after executing automated
-                // integration and cross browser tests (e.g. BrowserStack)
-                PubSub.publish('module_loaded', {
-                  "id": "organisation-team1-app1",
-                  "app_prefix": "132pqds-05c",
-                  "name": "Retail App",
-                  "description": "Claims App",
-                  "version": "0.0.1",
-                  "team": "Team 1",
-                  "entry_script": "/bundles/Z-App-132pqds-05c/static/js/mfe.js",
-                  "image_path": "/bundles/Z-App-132pqds-05c/static/images/",
-                  "css_path": "/bundles/Z-App-132pqds-05c/static/css/mfe.css",
-                  "entry_iframe": "/iframe.html",
-                  "email_contacts": "roz.chivers@email.com.au",
-                  "environment": "development",
-                  "rootRenderNode": "root", 
-                  "ssri": "@todo",
-                  "resource": "@todo",
-                  "region": "@todo"
-                });
-                return module;
-              })
-
+          let manifestRecord;
+          for (manifestRecord of MICRO_FRONTEND_MANIFEST) {
+            console.log('manifestRecord ', manifestRecord.entry_script);
+            if (manifestRecord.entry_script.match("http")) {
+              registerAndLoad([], 
+                manifestRecord.entry_script,
+                function(module){
+                  // Stub the loading of multiple MFE manifest files from
+                  // a centralised application registry service
+                  // individual teams submit a PR to a repo which
+                  // updates this service after executing automated
+                  // integration and cross browser tests (e.g. BrowserStack)
+                  PubSub.publish('module_loaded', manifestRecord);
+                },
+                function() {
+                  // handle error
+                }
+              )
+            } else {
+              // handle module load eror for non HTTP module entries
+              PubSub.publish('module_error', manifestRecord);
+            }
+          }
+/*
             loadStyleSheet(MICRO_FRONTEND_MANIFEST.css_path, function( success, link ) {
               if ( success ) {
                  // code to execute if the style sheet was loaded successfully
@@ -97,7 +274,28 @@
                  console.log("CSS failed to load");
               }
            } );
+*/
 
+
+
+        window.onload = function(){
+          let iframeRoot = document.getElementById('iframe-root1').contentWindow;
+
+          iframeRoot.init( PubSub );
+
+          PubSub.subscribe('login_authenthicated', function (topic, data) {
+            console.log('login_authenthicated ', topic);
+            console.log('login_authenthicated ', data);
+            showToast(data);
+          });
+        };
+
+        function showToast(message) {
+          let template = `<div class="toast success anim-fadeInUp">
+                        <p><span class="icon-tick">✔</span>Login: <em>${message.email}</em></p>
+                      </div>`;
+          document.getElementById('toast-area').innerHTML  = template;
+        }
         </script>
   </body>
 </html>

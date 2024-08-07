@@ -1,0 +1,15 @@
+{
+  "name": "mfe-host",
+  "version": "1.0.0",
+  "description": "Micro Frontend Script Loader Experiment",
+  "main": "index.js",
+  "scripts": {
+    "server": "python -m http.server 8010",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Rozario Chivers",
+  "license": "MIT",
+  "dependencies": {
+    "single-spa-react": "^6.0.1"
+  }
+}

@@ -7,11 +7,11 @@ const MICRO_FRONTEND_MANIFEST = {
   "team": "Team 1",
   "entry_script": "/bundles/Z-App-132pqds-05c/static/js/mfe.js",
   "image_path": "/bundles/Z-App-132pqds-05c/static/images/",
-  "css_path": "/bundles/Z-App-132pqds-05c/static/css/mfe.css",
+  "css_path": "/bundles/Z-App-132pqds-05c/static/css/defaultV2.css",
   "entry_iframe": "/iframe.html",
   "email_contacts": "roz.chivers@email.com.au",
   "environment": "development",
-  "rootRenderNode": "root", 
+  "rootRenderNode": "root2", 
   "ssri": "@todo",
   "resource": "@todo",
   "region": "@todo"

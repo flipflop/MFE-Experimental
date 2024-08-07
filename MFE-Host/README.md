@@ -33,11 +33,22 @@
 
 This project was bootstrapped with:
 
-
+- React
+- React Shadow
+- PubSubJS
+- ZDS
+- SingleSpa
 
 ## Goals
 
-
+- Demonstate the loading of JavaScript module from a remote URL
+    - Via SingleSpa
+    - Via Vanilla JS dynamic script loading
+- Demonstrate the use of Shadow DOM to sandbox CSS
+- Demonstrate route handling via Route Prefix
+- Demonstate the mitigation of storage collision via Local and Session Storage wrapper class
+- Demonstate the integration of SurveyJS, ZDS
+- Demonstate a Micro Frontend Event Bus with iframe PostMessage support (for Salesforce, Guidewire and Mendix augmentation solutions)
 
 ## Getting Started
 
@@ -58,45 +69,14 @@ Before getting started you will need to consider:
 
 ```
 const generateClassName = createGenerateClassName({
-  productionPrefix: PortletManifest.PORTLET_MANIFEST.id,
+  productionPrefix: APP_MANIFEST.id,
   disabledGlobal: true
 })
 ```
 
-
-### Portlet Registry
-
-Individal Apps will have to be registered with the main portal by submitting a Pull Request to the [Macro-Portal-Admin-Dashboard](https://stash.internal.macquarie.com/projects/INFRA/repos/macro-portal-admin-dashboard/browse) project to this specific file:
-
-For convenience a CLI tool is provided in this project to make Portlet Manifest Creation simpler prior to PRs being submitted to the main Macro Portal repository.
-
-In your CLI run:
-
-```
-node dev/CreateManifest/create-manifest.js
-```
-This script will ask a series of questions in regard to the application meta data you would like to make available within the portal. Once complete it will generate a portlet-manifest.js in the same directory, which can be used when updating the loadModules file in the main Macro Portal repository.  
-
-Currently this is an MVP solution, which is planned to become a standalone Portlet Registry Service with Arturo integration in later phases.
-
-Please ensure the Portlet ids are unique.
-
-### Configuration
-
-- src/portlet-manifest.js (Portlet configuration)
-	
-```
-export default {
-    "PORTLET_MANIFEST": {
-        "id"                : "<organisation>--<team name>--<application name>"
-    }
-}
-```
-The Micro Frontend manifest id is used to provide a centralised reference which is used when registering each application within the Main Host's Application Registry.
-
 ### Images
 
-Images will be Base64 encoded by the Main Portal to mitigate file path resolution issues.
+Images can be Base64 encoded by the Main Portal to mitigate file path resolution issues.
 In order to support this feature, please load images using an ES6 import, for example:
 
 ```
@@ -147,21 +127,40 @@ An event registry is used to track all event names with a standard Pub/Sub inter
 
 A default event registry of event names are provided in the event bus. Events can not be published or subscribed to without a relevant key in the event registry.
 
-Additional registry 'event name' files can be provided with each React Component independently via Carrigage Return delimeted event name 'keys' within a template literal string. 
+Additional registry 'event name' files can be provided with each React Component independently.
 
 It is recommended that event names are namespaced and delimeted to ensure uniqueness.
 
 For example:
 
 ```
-const headerEventNames = `
-    retailapp.claim.open  
-    retailapp.claim.active
-    retailapp.claim.closed
-`;
+const appEventNames = [
+    'retailapp.claim.open',  
+    'retailapp.claim.active',
+    'retailapp.claim.closed'
+];
 
-export default headerEventNames;
+export default appEventNames;
 ```
 
-## Learn More
+## Getting Started
 
+In MFE-Host use:
+
+```yarn run server```
+
+In mfe-starter-kit use:
+
+```yarn run start```
+
+In MFE-Z-App use:
+
+```yarn run start```
+
+Open the main Micro Frontend host on localhost:8000 to view examples of:
+
+- Login from an iframe using PostMessage API events
+- SurveyJS example Micro Frontend application
+- ZDS example Micro Frontend using ShadowDOM
+
+This project also contains a reference implmentation of a VanillaJS Micro Frontend Script Tag Loader.
